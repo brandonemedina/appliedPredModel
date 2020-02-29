@@ -87,102 +87,51 @@ Try adding air asperation method to see what it does
 
 ```{r}
 levels(cars2010a$ExhaustValvesPerCyl)
-#trannyValveModel = glm(FE ~ Transmission + ExhaustValvesPerCyl, data = testTranny)
-#summary(trannyValveModel)
+trannyValveModel = glm(FE ~ Transmission + ExhaustValvesPerCyl, data = testTranny)
+summary(trannyValveModel)
+```
+
+
+
+
+##ANOVA
+
+```{r}
+
+model6 = glm(FE ~ EngDispl+NumCyl+AirAspirationMethod+TransCreeperGear+DriveDesc,data = cars2010a)
+
+summary (model6)
+
+anova(model6)
+
+```
+
+It appears that Transcreaper gear is a drag, DriveDesc should only include front two wheel drive, and model should include 
+
+```{r}
+
+pruned2010a = filter(cars2010a, TransCreeperGear==0 & DriveDesc == 'TwoWheelDriveFront' & EngDispl < 3)
+
+model7 = glm(FE ~ EngDispl,data = pruned2010a)
+
+summary (model7)
+
+anova(model7)
+
 ```
 
 
 ```{r}
-for (i in 1:length(cars2010a$IntakeValvePerCyl)){
-  if (cars2010a$IntakeValvePerCyl[i] == 0) print('found one')
-}
+pred2011 = predict(model7,cars2011a)
+#print(pred2011)
+hist(pred2011)
+boxplot(pred2011, main='data from 2011\nmodelall')
 ```
 
-
-### regession fit
+##Compare average fuel efficiency for 2011 cars using model 7 to fuel efficiency for all cars in 2010
 
 ```{r}
-model1 = glm(FE~ EngDispl, data=cars2010a)
-summary(model1)
-plot(cars2010a$EngDispl, cars2010a$FE, xlab = 'Engine Displacement, L', ylab = 'Fuel Efficiency, MPG')
-abline(model1, col='red')
+t.test(cars2011a$FE, pred2011)
 ```
 
-### how does this fit model year 2011?
-```{r}
-plot(cars2011a$EngDispl, cars2011a$FE, xlab = 'Engine Displacement,L',ylab='MPG')
-x = cars2011a$EngDispl
-y = model1$coefficients[1] + model1$coefficients[2]*x
-lines(x,y, col='red')
-```
-
-
-
-may benefit from a second order term
-
-```{r}
-model2 = glm(FE~ EngDispl + I(EngDispl^2), data = cars2010a)
-
-summary(model2)
-```
-
-### include transmission in the equation:
-
-```{r}
-levels(cars2010a$Transmission)
-model3 = glm(FE~ EngDispl+Transmission, data = cars2010a)
-summary(model3)
-
-```
-
-
-
-### predictions
-```{r}
-plot(cars2011a$EngDispl, cars2011a$FE, ylab='MPG', xlab='Engine displacement, L')
-newData = cars2011a
-y = predict(model3, newdata = cars2011a)
-
-lines(cars2011a$EngDispl,y, col='grey')
-
-#fit a smooth line to y then plot
-ySmooth= glm(y~cars2011a$EngDispl)
-summary(ySmooth)
-abline(ySmooth, col='red')
-
-```
-
-Transmission effects ??
-
-```{r}
-
-model3AOV = aov(cars2010a$FE~cars2010a$Transmission)
-summary(model3AOV)
-TukeyHSD(model3AOV)
-```
-
-Number of Cylinders
-
-```{r}
-model4 = glm(FE~ NumCyl, data=cars2010a)
-summary(model4)
-plot(cars2010a$NumCyl, cars2010a$FE, xlab = 'Number of Cylinders', ylab = 'Fuel Efficiency, MPG')
-abline(model4, col='red')
-```
-
-How does this fit 2011
-
-```{r}
-plot(cars2011a$NumCyl, cars2011a$FE, xlab = 'Number of Cylinders',ylab='MPG')
-x = cars2011a$NumCyl
-y = model4$coefficients[1] + model4$coefficients[2]*x
-lines(x,y, col='red')
-```
-
-Include Cylinders, Transmission and Engine Displacement
-
-```{r}
-model5 = glm(FE~ NumCyl+EngDispl+Transmission, data = cars2010a)
-summary(model5)
-```
 
