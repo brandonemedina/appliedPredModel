@@ -83,7 +83,6 @@ summary(trannyModel)
 print(mean(testTranny$FE))
 ```
 
-
 Try adding air asperation method to see what it does
 
 ```{r}
@@ -162,5 +161,28 @@ summary(model3AOV)
 TukeyHSD(model3AOV)
 ```
 
+Number of Cylinders
 
+```{r}
+model4 = glm(FE~ NumCyl, data=cars2010a)
+summary(model4)
+plot(cars2010a$NumCyl, cars2010a$FE, xlab = 'Number of Cylinders', ylab = 'Fuel Efficiency, MPG')
+abline(model4, col='red')
+```
+
+How does this fit 2011
+
+```{r}
+plot(cars2011a$NumCyl, cars2011a$FE, xlab = 'Number of Cylinders',ylab='MPG')
+x = cars2011a$NumCyl
+y = model4$coefficients[1] + model4$coefficients[2]*x
+lines(x,y, col='red')
+```
+
+Include Cylinders, Transmission and Engine Displacement
+
+```{r}
+model5 = glm(FE~ NumCyl+EngDispl+Transmission, data = cars2010a)
+summary(model5)
+```
 
